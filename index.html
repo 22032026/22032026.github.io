@@ -267,6 +267,9 @@
             box-shadow: 3px 3px 15px rgba(0,0,0,0.6);
             display: none; 
             z-index: 10;
+            /* Aseguramos que no se salga de la pantalla por defecto */
+            max-width: 100vw;
+            max-height: calc(100vh - 30px);
         }
 
         .window.maximized {
@@ -274,6 +277,8 @@
             left: 0 !important;
             width: 100vw !important;
             height: calc(100vh - 30px) !important;
+            max-width: 100vw;
+            max-height: calc(100vh - 30px);
         }
 
         .title-bar {
@@ -284,13 +289,17 @@
             justify-content: space-between;
             align-items: center;
             border-radius: 5px 5px 0 0;
-            cursor: grab;
+            cursor: grab; /* Estilo XP */
             font-weight: bold;
             font-size: 14px;
             text-shadow: 1px 1px 1px black;
+            /* Para que el arrastre funcione bien */
+            touch-action: none;
         }
 
-        .title-bar:active { cursor: grabbing; }
+        .title-bar:active {
+            cursor: grabbing;
+        }
 
         .window-controls button {
             width: 22px;
@@ -353,7 +362,18 @@
             font-family: 'Tahoma', sans-serif;
         }
 
-        .love-letter { font-family: 'Georgia', serif; font-size: 16px; line-height: 1.6; color: #333; background: #fffdf0; padding: 15px; border: 1px solid #e0d8b0; box-shadow: 2px 2px 5px rgba(0,0,0,0.05); }
+        .love-letter {
+            font-family: 'Georgia', serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+            background: #fffdf0;
+            padding: 15px;
+            border: 1px solid #e0d8b0;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+            max-height: 400px;
+            overflow-y: auto;
+        }
         .calc-app { text-align: center; }
         .calc-app input { width: 45%; padding: 8px; font-size: 16px; text-align: center; border: 2px solid #3a93ff; border-radius: 4px; font-weight: bold; color: #003399; margin-bottom: 15px; }
         .calc-app button { padding: 10px 20px; font-size: 16px; font-weight: bold; background: #ff4d4d; color: white; border: 2px solid #cc0000; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 0 #cc0000; transition: 0.1s; }
@@ -759,14 +779,16 @@
             <span>Para_Mi_Amol.txt</span>
             <div class="window-controls"><button onclick="minimizeWindow('window-letter')">_</button><button onclick="maximizeWindow('window-letter')">□</button><button class="close" onclick="closeWindow('window-letter')">X</button></div>
         </div>
-        <div class="window-content love-letter">
-            <h2 style="color:#003399;">Mi vida.</h2>
-            <br>
-            <p>Te amo más de lo que las palabras pueden expresar, Cada vez que te veo, mi corazón late con fuerza, Cada vez que estoy contigo, me siento tan tranquilo de saber que estás aquí a mi lado, te amo mucho mi vida y eres mi todo. Estos 3 meses me han enseñado a amarte aún más, estoy demasiado agradecido de tenerte a mi lado mi amor, cada dia te amo mucho mas, sin ti mi mundo seria una mierda mi amol, soy tan feliz mi amor, eres mi vida entera mi corazon, te amo con todo mi ser. Siempre estaré aquí para ti y contigo mi amolsito, perdon si a veces me siento un poco mal mi vida. Eres tan hermosa mi corazon, perfecta mi vida. gracias por estar conmigo mi amor. FELICES 3 MESES MI VIDAAAA, TE AMO MUCHO <3333</p>
-            <br>
-            <p>Felices 3 meses, mi vida y vamos por mas mi amol jeje.</p>
-            <br>
-            <p>Con todo mi amor,<br><strong>Braulito.exe jeje.</strong></p>
+        <div class="window-content">
+            <div class="love-letter">
+                <h2 style="color:#003399;">Mi vida.</h2>
+                <br>
+                <p>Te amo más de lo que las palabras pueden expresar, Cada vez que te veo, mi corazón late con fuerza, Cada vez que estoy contigo, me siento tan tranquilo de saber que estás aquí a mi lado, te amo mucho mi vida y eres mi todo. Estos 3 meses me han enseñado a amarte aún más, estoy demasiado agradecido de tenerte a mi lado mi amor, cada dia te amo mucho mas, sin ti mi mundo seria una mierda mi amol, soy tan feliz mi amor, eres mi vida entera mi corazon, te amo con todo mi ser. Siempre estaré aquí para ti y contigo mi amolsito, perdon si a veces me siento un poco mal mi vida. Eres tan hermosa mi corazon, perfecta mi vida. gracias por estar conmigo mi amor. FELICES 3 MESES MI VIDAAAA, TE AMO MUCHO <3333</p>
+                <br>
+                <p>Felices 3 meses, mi vida y vamos por mas mi amol jeje.</p>
+                <br>
+                <p>Con todo mi amor,<br><strong>Braulito.exe jeje.</strong></p>
+            </div>
         </div>
     </div>
 
@@ -1034,6 +1056,87 @@
             win.style.zIndex = ++zIndexCounter;
         }
 
+        // --- ARRASTRE DE VENTANAS CON LÍMITES ---
+        function makeDraggable(win) {
+            const titleBar = win.querySelector('.title-bar');
+            if (!titleBar) return;
+
+            let isDragging = false;
+            let startX, startY, initialLeft, initialTop;
+            let maxX, maxY;
+
+            function onStart(e) {
+                // Ignorar si está maximizada o si se hizo clic en un botón
+                if (win.classList.contains('maximized')) return;
+                if (e.target.closest('.window-controls')) return;
+
+                isDragging = true;
+                const rect = win.getBoundingClientRect();
+                const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+                startX = clientX;
+                startY = clientY;
+                initialLeft = win.offsetLeft;
+                initialTop = win.offsetTop;
+
+                // Calcular límites
+                const taskbarHeight = document.getElementById('taskbar').offsetHeight || 30;
+                const winWidth = win.offsetWidth;
+                const winHeight = win.offsetHeight;
+                maxX = window.innerWidth - winWidth;
+                maxY = window.innerHeight - taskbarHeight - winHeight;
+
+                // Poner la ventana al frente
+                win.style.zIndex = ++zIndexCounter;
+
+                // Cambiar cursor
+                titleBar.style.cursor = 'grabbing';
+                document.body.style.cursor = 'grabbing';
+
+                e.preventDefault();
+            }
+
+            function onMove(e) {
+                if (!isDragging) return;
+                const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+
+                let newLeft = initialLeft + (clientX - startX);
+                let newTop = initialTop + (clientY - startY);
+
+                // Aplicar límites
+                newLeft = Math.max(0, Math.min(newLeft, maxX));
+                newTop = Math.max(0, Math.min(newTop, maxY));
+
+                win.style.left = newLeft + 'px';
+                win.style.top = newTop + 'px';
+                e.preventDefault();
+            }
+
+            function onEnd(e) {
+                if (isDragging) {
+                    isDragging = false;
+                    titleBar.style.cursor = 'grab';
+                    document.body.style.cursor = 'default';
+                }
+            }
+
+            // Eventos de ratón
+            titleBar.addEventListener('mousedown', onStart);
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onEnd);
+
+            // Eventos táctiles
+            titleBar.addEventListener('touchstart', onStart, { passive: false });
+            document.addEventListener('touchmove', onMove, { passive: false });
+            document.addEventListener('touchend', onEnd, { passive: false });
+        }
+
+        // Aplicar arrastre a todas las ventanas existentes y futuras
+        document.querySelectorAll('.window').forEach(win => makeDraggable(win));
+
+        // También para ventanas que se abran dinámicamente (pero ya están en el DOM)
+
         // --- EFECTOS DE FONDO ---
         function createHeart() {
             const bg = document.getElementById('bg-effects');
@@ -1107,37 +1210,6 @@
             if (!startMenu.contains(e.target) && e.target !== startBtn) {
                 startMenu.style.display = 'none';
             }
-        });
-
-        // --- ARRASTRAR VENTANAS ---
-        document.querySelectorAll('.window').forEach(win => {
-            const titleBar = win.querySelector('.title-bar');
-            let isDragging = false, startX, startY, initialX, initialY;
-            win.addEventListener('mousedown', () => { win.style.zIndex = ++zIndexCounter; });
-            titleBar.addEventListener('mousedown', (e) => {
-                if (e.target.tagName === 'BUTTON' || win.classList.contains('maximized')) return;
-                isDragging = true;
-                startX = e.clientX; startY = e.clientY;
-                initialX = win.offsetLeft; initialY = win.offsetTop;
-            });
-            document.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                win.style.left = (initialX + (e.clientX - startX)) + 'px';
-                win.style.top = (initialY + (e.clientY - startY)) + 'px';
-            });
-            document.addEventListener('mouseup', () => { isDragging = false; });
-            titleBar.addEventListener('touchstart', (e) => {
-                if (e.target.tagName === 'BUTTON' || win.classList.contains('maximized')) return;
-                isDragging = true;
-                startX = e.touches[0].clientX; startY = e.touches[0].clientY;
-                initialX = win.offsetLeft; initialY = win.offsetTop;
-            });
-            document.addEventListener('touchmove', (e) => {
-                if (!isDragging) return;
-                win.style.left = (initialX + (e.touches[0].clientX - startX)) + 'px';
-                win.style.top = (initialY + (e.touches[0].clientY - startY)) + 'px';
-            });
-            document.addEventListener('touchend', () => { isDragging = false; });
         });
 
         // --- CONTADOR DE TIEMPO ---
