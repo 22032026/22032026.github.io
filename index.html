@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3 Meses con Briana</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <style>
+        /* --- ESTILOS GENERALES --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tahoma', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            overflow: hidden; 
+            background: linear-gradient(to bottom, #2b56c6, #00136b); 
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .pixel-font {
+            font-family: 'VT323', monospace;
+        }
+
+        /* --- EFECTOS DE FONDO (LLUVIA DE CORAZONES) --- */
+        #bg-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+            display: none;
+            overflow: hidden;
+        }
+
+        .floating-heart {
+            position: absolute;
+            bottom: -20px;
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.3);
+            animation: floatUp linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 0.5; }
+            100% { transform: translateY(-110vh) scale(1.5); opacity: 0; }
+        }
+
+        /* --- PANTALLA DE CARGA --- */
+        #boot-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #ffffff;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease;
+        }
+
+        .boot-text {
+            font-size: 32px;
+            color: #003399;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            font-family: 'VT323', monospace;
+        }
+
+        .windows-logo-boot {
+            width: 80px;
+            height: auto;
+            margin-bottom: 20px;
+            image-rendering: pixelated;
+        }
+
+        .hearts-loading {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .hearts-loading img {
+            width: 28px;
+            height: 28px;
+            image-rendering: pixelated;
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.3); opacity: 1; }
+        }
+
+        .loading-bar-container {
+            width: 250px;
+            height: 24px;
+            border: 2px solid #888;
+            padding: 2px;
+            background: #fff;
+            border-radius: 4px;
+        }
+
+        .loading-bar {
+            height: 100%;
+            width: 0%;
+            background: repeating-linear-gradient(
+                90deg,
+                #3a93ff,
+                #3a93ff 10px,
+                transparent 10px,
+                transparent 12px
+            );
+            animation: loadProgress 3.5s linear forwards;
+        }
+
+        @keyframes loadProgress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        /* --- PANTALLA DE INICIO DE SESIÓN --- */
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #003399, #00136b);
+            z-index: 99998;
+            display: none; 
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .login-box {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 15px;
+            border: 2px solid #3a93ff;
+            box-shadow: 0px 10px 30px rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            margin: 0 auto;
+        }
+
+        .login-avatar {
+            width: 90px;
+            height: 90px;
+            border: 4px solid #fff;
+            border-radius: 10px;
+            image-rendering: pixelated;
+            background: #fff;
+        }
+
+        .login-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .login-inputs h2 {
+            font-size: 28px;
+            font-weight: normal;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+
+        .login-inputs p {
+            font-size: 14px;
+            color: #d3e5fa;
+            margin-bottom: 5px;
+            font-style: italic;
+        }
+
+        .login-inputs input {
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #a9ccf5;
+            border-radius: 5px;
+            outline: none;
+            width: 220px;
+            background: #f0f8ff;
+        }
+
+        .login-inputs button {
+            padding: 10px 15px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            background: linear-gradient(to bottom, #46b535, #246e16);
+            color: white;
+            border: 2px solid white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: transform 0.1s;
+        }
+
+        .login-inputs button:active {
+            transform: scale(0.95);
+        }
+
+        /* --- ESCRITORIO E ICONOS --- */
+        #desktop {
+            display: none; 
+            flex-direction: column;
+            flex-wrap: wrap;
+            height: calc(100vh - 30px); 
+            padding: 20px;
+            gap: 25px;
+            align-content: flex-start;
+            position: relative;
+            z-index: 2;
+        }
+
+        .desktop-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 85px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        .desktop-icon:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .desktop-icon img {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 8px;
+            image-rendering: pixelated;
+            filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.5));
+        }
+
+        .desktop-icon span {
+            color: white;
+            text-align: center;
+            font-size: 13px;
+            text-shadow: 1px 1px 2px black, 0 0 5px blue;
+            font-weight: bold;
+        }
+
+        /* --- VENTANAS --- */
+        .window {
+            position: absolute;
+            width: 420px;
+            background: #ece9d8;
+            border: 3px solid #003399;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 3px 3px 15px rgba(0,0,0,0.6);
+            display: none; 
+            z-index: 10;
+        }
+
+        .window.maximized {
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: calc(100vh - 30px) !important;
+        }
+
+        .title-bar {
+            background: linear-gradient(to right, #0058e6, #3a93ff, #0058e6);
+            color: white;
+            padding: 6px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 5px 5px 0 0;
+            cursor: grab;
+            font-weight: bold;
+            font-size: 14px;
+            text-shadow: 1px 1px 1px black;
+        }
+
+        .title-bar:active { cursor: grabbing; }
+
+        .window-controls button {
+            width: 22px;
+            height: 22px;
+            margin-left: 3px;
+            font-weight: bold;
+            cursor: pointer;
+            background: #e3e3e3;
+            border: 1px solid white;
+            border-right-color: #888;
+            border-bottom-color: #888;
+            border-radius: 3px;
+        }
+
+        .window-controls button.close {
+            background: #ff5c5c;
+            color: white;
+        }
+
+        .window-content {
+            padding: 20px;
+            background: #fafafa;
+            height: calc(100% - 34px);
+            border: 1px solid #888;
+            margin: 2px;
+            overflow-y: auto;
+            user-select: text;
+        }
+
+        .heart-divider { text-align: center; color: #ff5c5c; margin: 15px 0; letter-spacing: 5px; }
+        #timer-text { font-size: 20px; font-weight: bold; text-align: center; margin-top: 15px; color: #003399; line-height: 1.5; }
+        .photo-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .photo-placeholder { width: 100%; height: 120px; background: #ffe6e6; display: flex; align-items: center; justify-content: center; border: 2px dashed #ff9999; border-radius: 8px; color: #cc0000; font-weight: bold; box-shadow: inset 0 0 10px rgba(255,0,0,0.1); }
+        .love-letter { font-family: 'Georgia', serif; font-size: 16px; line-height: 1.6; color: #333; background: #fffdf0; padding: 15px; border: 1px solid #e0d8b0; box-shadow: 2px 2px 5px rgba(0,0,0,0.05); }
+        .calc-app { text-align: center; }
+        .calc-app input { width: 45%; padding: 8px; font-size: 16px; text-align: center; border: 2px solid #3a93ff; border-radius: 4px; font-weight: bold; color: #003399; margin-bottom: 15px; }
+        .calc-app button { padding: 10px 20px; font-size: 16px; font-weight: bold; background: #ff4d4d; color: white; border: 2px solid #cc0000; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 0 #cc0000; transition: 0.1s; }
+        .calc-app button:active { transform: translateY(4px); box-shadow: 0 0 0 #cc0000; }
+        .calc-result { margin-top: 20px; font-size: 24px; color: #cc0000; font-weight: bold; min-height: 30px; }
+
+        /* --- Reproductor de música (estilo original, con emojis y movimiento) --- */
+        .music-player {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            color: #00ff00;
+            border: 4px solid #555;
+        }
+        .music-screen {
+            background: #000;
+            padding: 10px;
+            border: 2px inset #666;
+            margin-bottom: 15px;
+            text-align: center;
+            overflow: hidden;
+        }
+        .music-screen .marquee-text {
+            display: inline-block;
+            white-space: nowrap;
+            animation: scrollMarquee 8s linear infinite;
+            font-family: 'VT323', monospace;
+            font-size: 20px;
+            color: #00ff00;
+        }
+        @keyframes scrollMarquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .music-screen .song-time {
+            font-family: 'VT323', monospace;
+            font-size: 14px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        .music-controls {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .music-controls button {
+            width: 40px;
+            height: 36px;
+            background: #444;
+            border: 2px outset #777;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 20px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.1s;
+        }
+        .music-controls button:hover {
+            background: #666;
+        }
+
+        .playlist-selector {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .playlist-selector select {
+            width: 100%;
+            padding: 5px;
+            background: #111;
+            color: #0f0;
+            border: 2px solid #0f0;
+            font-family: 'VT323', monospace;
+            font-size: 14px;
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+        }
+        .playlist-selector select option {
+            background: #222;
+            color: #0f0;
+        }
+
+        /* --- BARRA DE TAREAS Y MENÚ INICIO --- */
+        #taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            background: linear-gradient(to bottom, #245edb 0%, #3f8cf3 9%, #245edb 18%, #245edb 92%, #1941a5 100%);
+            z-index: 10000;
+            display: none; 
+            align-items: center;
+            border-top: 1px solid #000;
+            gap: 4px;
+            padding-right: 10px;
+        }
+
+        .start-btn {
+            background: linear-gradient(to bottom, #389e28 0%, #46b535 9%, #389e28 18%, #389e28 92%, #246e16 100%);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 15px 0 5px;
+            color: white;
+            font-style: italic;
+            font-weight: bold;
+            font-size: 16px;
+            border-right: 1px solid #1941a5;
+            border-radius: 0 10px 10px 0;
+            cursor: pointer;
+            box-shadow: 2px 0 3px rgba(0,0,0,0.3);
+            flex-shrink: 0;
+        }
+
+        .start-btn img { 
+            height: 20px; 
+            margin-right: 5px; 
+            filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.5));
+        }
+
+        .taskbar-user { 
+            color: white; 
+            font-size: 13px; 
+            margin-left: 15px; 
+            display: flex; 
+            align-items: center; 
+            gap: 5px; 
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .taskbar-user img { width: 16px; height: 16px; image-rendering: pixelated; }
+
+        #taskbar-windows {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+            overflow-x: auto;
+            height: 100%;
+        }
+
+        .taskbar-window-btn {
+            background: #3f8cf3;
+            color: white;
+            border: 1px solid #1941a5;
+            border-radius: 3px;
+            padding: 0 12px;
+            height: 22px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+            box-shadow: inset 1px 1px 0 rgba(255,255,255,0.2);
+            transition: background 0.1s;
+            flex-shrink: 0;
+        }
+
+        .taskbar-window-btn:hover {
+            background: #5a9cf5;
+        }
+
+        .taskbar-window-btn.active {
+            background: #1a5bb5;
+            border-color: #0d3a7a;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        .taskbar-clock { 
+            margin-left: auto; 
+            background: #0ea1d4; 
+            height: 100%; 
+            display: flex; 
+            align-items: center; 
+            padding: 0 15px; 
+            color: white; 
+            font-size: 12px; 
+            border-left: 1px solid #1941a5; 
+            box-shadow: inset 1px 0 2px rgba(255,255,255,0.3); 
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        #start-menu { position: fixed; bottom: 30px; left: 0; width: 280px; background: white; border: 2px solid #245edb; border-radius: 5px 5px 0 0; display: none; z-index: 10000; box-shadow: 2px -2px 10px rgba(0,0,0,0.5); flex-direction: column; }
+        .start-menu-header { background: linear-gradient(to bottom, #245edb 0%, #3f8cf3 9%, #245edb 18%, #245edb 92%, #1941a5 100%); color: white; padding: 15px; font-weight: bold; display: flex; align-items: center; font-size: 16px; }
+        .start-menu-header img { width: 40px; height: 40px; border-radius: 5px; border: 2px solid white; margin-right: 15px; background: white; }
+        .start-menu-list { list-style: none; padding: 10px 0; background: #fff; flex-grow: 1; border-right: 1px solid #d3d3d3; }
+        .start-menu-list li { padding: 10px 15px; cursor: pointer; display: flex; align-items: center; font-size: 13px; color: #333; font-weight: bold; }
+        .start-menu-list li:hover { background: #2b56c6; color: white; }
+        .start-menu-list li img { width: 24px; height: 24px; margin-right: 10px; }
+        .start-menu-footer { background: #d3e5fa; padding: 8px; text-align: right; border-top: 1px solid #a9ccf5; display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+
+        @media (max-width: 600px) {
+            .window { width: 95vw; left: 2.5vw !important; }
+            #desktop { flex-direction: row; align-content: flex-start; }
+            .login-box { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- AUDIOS DE WINDOWS (desde URLs) -->
+    <audio id="sound-startup" src="https://www.myinstants.com/media/sounds/windows-xp-startup.mp3" preload="auto"></audio>
+    <audio id="sound-click" src="https://www.myinstants.com/media/sounds/mouse-click.mp3" preload="auto"></audio>
+    <audio id="sound-open" src="https://www.myinstants.com/media/sounds/windows-xp-error.mp3" preload="auto"></audio>
+
+    <!-- REPRODUCTOR DE MÚSICA (varias canciones) -->
+    <audio id="bg-music" preload="auto"></audio>
+
+    <div id="bg-effects"></div>
+
+    <div id="boot-screen">
+        <img src="https://media.tenor.com/CDo9rXaH6GYAAAAC/windows-logo.gif" alt="Windows XP" class="windows-logo-boot">
+        <h1 class="pixel-font boot-text">Iniciando Sistema...</h1>
+        <h6 class="pixel-font boot-text">Hecho por braulito jeje</h6>
+        
+        <div class="hearts-loading">
+            <img src="https://i.pinimg.com/736x/a7/96/ce/a796ce7d8e411036147ac8d43c8755e3.jpg" alt="heart" style="animation-delay: 0s;">
+            <img src="https://i.pinimg.com/736x/a7/96/ce/a796ce7d8e411036147ac8d43c8755e3.jpg" alt="heart" style="animation-delay: 0.2s;">
+            <img src="https://i.pinimg.com/736x/a7/96/ce/a796ce7d8e411036147ac8d43c8755e3.jpg" alt="heart" style="animation-delay: 0.4s;">
+            <img src="https://i.pinimg.com/736x/a7/96/ce/a796ce7d8e411036147ac8d43c8755e3.jpg" alt="heart" style="animation-delay: 0.6s;">
+            <img src="https://i.pinimg.com/736x/a7/96/ce/a796ce7d8e411036147ac8d43c8755e3.jpg" alt="heart" style="animation-delay: 0.8s;">
+        </div>
+
+        <div class="loading-bar-container">
+            <div class="loading-bar"></div>
+        </div>
+    </div>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <img src="https://win98icons.alexmeub.com/icons/png/user_computer-0.png" alt="Avatar" class="login-avatar">
+            <div class="login-inputs">
+                <h2>Bienvenida mi amorsito</h2>
+                <p>Escribe tu nombre para accceder...</p>
+                <input type="text" id="username-input" placeholder="Nombre" autocomplete="off" onkeypress="if(event.key === 'Enter') login()">
+                <button onclick="login()">Entrar al Escritorio</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="desktop">
+        <div class="desktop-icon" onclick="openWindow('window-timer')">
+            <img src="https://win98icons.alexmeub.com/icons/png/clock-1.png" alt="Reloj">
+            <span>Contador</span>
+        </div>
+        <div class="desktop-icon" onclick="openWindow('window-photos')">
+            <img src="https://win98icons.alexmeub.com/icons/png/camera3-3.png" alt="Fotos">
+            <span>Fotos</span>
+        </div>
+        <div class="desktop-icon" onclick="openWindow('window-letter')">
+            <img src="https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-4.png" alt="Carta">
+            <span>Cartita</span>
+        </div>
+        <div class="desktop-icon" onclick="openWindow('window-reasons')">
+            <img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-4.png" alt="Razones">
+            <span>Te amo por...</span>
+        </div>
+        <div class="desktop-icon" onclick="openWindow('window-calc')">
+            <img src="https://win98icons.alexmeub.com/icons/png/calculator-1.png" alt="Calculadora">
+            <span>Calculadora</span>
+        </div>
+        <div class="desktop-icon" onclick="openWindow('window-music')">
+            <img src="https://win98icons.alexmeub.com/icons/png/cd_audio_cd_a-3.png" alt="Música">
+            <span>Playlist.exe</span>
+        </div>
+    </div>
+
+    <div id="taskbar">
+        <div class="start-btn" id="start-button">
+            <img src="https://media.tenor.com/u5VXvbgXPOYAAAAj/windowsxp.gif" alt="Start">
+            Inicio
+        </div>
+        <div class="taskbar-user">
+            <img src="https://img1.picmix.com/output/stamp/tiny/1/0/7/5/2465701_e19ae.png" alt="User Icon">
+            <span id="display-username-taskbar">Cargando...</span>
+        </div>
+        <div id="taskbar-windows"></div>
+        <div class="taskbar-clock" id="taskbar-clock">00:00</div>
+    </div>
+
+    <div id="start-menu">
+        <div class="start-menu-header">
+            <img src="https://win98icons.alexmeub.com/icons/png/user_computer-0.png" alt="Usuario">
+            <span id="display-username-menu">Cargando...</span>
+        </div>
+        <ul class="start-menu-list">
+            <li onclick="openWindow('window-timer')"><img src="https://win98icons.alexmeub.com/icons/png/clock-1.png"> Nuestro Tiempo</li>
+            <li onclick="openWindow('window-photos')"><img src="https://win98icons.alexmeub.com/icons/png/camera3-3.png"> Galería</li>
+            <li onclick="openWindow('window-calc')"><img src="https://win98icons.alexmeub.com/icons/png/calculator-1.png"> Calculadora</li>
+            <li onclick="openWindow('window-music')"><img src="https://win98icons.alexmeub.com/icons/png/cd_audio_cd_a-3.png"> Nuestra Playlist</li>
+            <li><img src="https://win98icons.alexmeub.com/icons/png/settings_gear-0.png">Te amo.</li>
+        </ul>
+        <div class="start-menu-footer">
+            <span style="font-size: 11px; color:#555; font-weight:bold; margin-right:10px;">Cerrar Sistema</span>
+            <img src="https://win98icons.alexmeub.com/icons/png/shut_down_normal-2.png" alt="Apagar" style="width:28px; cursor:pointer;" onclick="alert('ola mi amor :3')">
+        </div>
+    </div>
+
+    <!-- VENTANAS -->
+    <div class="window" id="window-timer" style="top: 50px; left: 50px;">
+        <div class="title-bar">
+            <span>Contador_de_Felicidad.exe</span>
+            <div class="window-controls"><button onclick="minimizeWindow('window-timer')">_</button><button onclick="maximizeWindow('window-timer')">□</button><button class="close" onclick="closeWindow('window-timer')">X</button></div>
+        </div>
+        <div class="window-content">
+            <h3 style="text-align: center; color: #003399;">Tiempo juntitos <3:</h3>
+            <div class="heart-divider">♥♥♥</div>
+            <div id="timer-text">Cargando...</div>
+        </div>
+    </div>
+
+    <div class="window" id="window-calc" style="top: 80px; left: 80px;">
+        <div class="title-bar">
+            <span>Calculadora_de_Amor.exe</span>
+            <div class="window-controls"><button onclick="minimizeWindow('window-calc')">_</button><button onclick="maximizeWindow('window-calc')">□</button><button class="close" onclick="closeWindow('window-calc')">X</button></div>
+        </div>
+        <div class="window-content calc-app">
+            <h3 style="margin-bottom: 20px; color:#333;">Comprueba la compatibilidad:</h3>
+            <input type="text" value="Brauu" readonly> + 
+            <input type="text" value="Briana" readonly>
+            <br>
+            <button onclick="document.getElementById('calc-result').innerHTML = '¡100% Compatibles!<br>, Ostia mi amol jeje'">Calcular Amor</button>
+            <div class="calc-result" id="calc-result"></div>
+        </div>
+    </div>
+
+    <!-- VENTANA DE MÚSICA CON ESTILO ORIGINAL Y PLAYLIST -->
+    <div class="window" id="window-music" style="top: 100px; left: 120px; width: 420px;">
+        <div class="title-bar">
+            <span>Reproductor.mp3</span>
+            <div class="window-controls"><button onclick="minimizeWindow('window-music')">_</button><button onclick="maximizeWindow('window-music')">□</button><button class="close" onclick="closeWindow('window-music')">X</button></div>
+        </div>
+        <div class="window-content" style="background:#222;">
+            <div class="music-player">
+                <div class="music-screen">
+                    <div class="marquee-text" id="song-marquee">🎵 Selecciona una canción</div>
+                    <div class="song-time" id="music-time">00:00 / 00:00</div>
+                </div>
+
+                <div class="music-controls">
+                    <button onclick="playSound('click'); prevSong();" title="Anterior">⏮️</button>
+                    <button onclick="playSound('click'); playMusic();" title="Reproducir">▶️</button>
+                    <button onclick="playSound('click'); pauseMusic();" title="Pausa">⏸️</button>
+                    <button onclick="playSound('click'); stopMusic();" title="Detener">⏹️</button>
+                    <button onclick="playSound('click'); nextSong();" title="Siguiente">⏭️</button>
+                </div>
+
+                <div class="playlist-selector">
+                    <select id="playlist-select" onchange="playSound('click'); changeSong(this.value)">
+                        <!-- Las opciones se generan con JavaScript -->
+                    </select>
+                </div>
+            </div>
+            <p style="color:white; text-align:center; margin-top:15px; font-size:12px;"></p>
+        </div>
+    </div>
+
+    <div class="window" id="window-photos" style="top: 120px; left: 150px;">
+        <div class="title-bar">
+            <span>Recuerdos.jpeg</span>
+            <div class="window-controls"><button onclick="minimizeWindow('window-photos')">_</button><button onclick="maximizeWindow('window-photos')">□</button><button class="close" onclick="closeWindow('window-photos')">X</button></div>
+        </div>
+        <div class="window-content">
+            <h3 style="text-align: center; margin-bottom: 15px; color:#333;">Nuestros Recuerdos</h3>
+            <div class="photo-gallery">
+                <div class="photo-placeholder">Foto</div>
+                <div class="photo-placeholder">Foto</div>
+                <div class="photo-placeholder">Foto</div>
+                <div class="photo-placeholder">Foto</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="window" id="window-letter" style="top: 140px; left: 180px;">
+        <div class="title-bar">
+            <span>Para_Mi_Amol.txt</span>
+            <div class="window-controls"><button onclick="minimizeWindow('window-letter')">_</button><button onclick="maximizeWindow('window-letter')">□</button><button class="close" onclick="closeWindow('window-letter')">X</button></div>
+        </div>
+        <div class="window-content love-letter">
+            <h2 style="color:#003399;">Mi vida.</h2>
+            <br>
+            <p>Te amo más de lo que las palabras pueden expresar, Cada vez que te veo, mi corazón late con fuerza, Cada vez que estoy contigo, me siento tan tranquilo de saber que estás aquí a mi lado, te amo mucho mi vida y eres mi todo. Estos 3 meses me han enseñado a amarte aún más, estoy demasiado agradecido de tenerte a mi lado mi amor, cada dia te amo mucho mas, sin ti mi mundo seria una mierda mi amol, soy tan feliz mi amor, eres mi vida entera mi corazon, te amo con todo mi ser. Siempre estaré aquí para ti y contigo mi amolsito, perdon si a veces me siento un poco mal mi vida. Eres tan hermosa mi corazon, perfecta mi vida. gracias por estar conmigo mi amor. FELICES 3 MESES MI VIDAAAA, TE AMO MUCHO <3333</p>
+            <br>
+            <p>Felices 3 meses, mi vida y vamos por mas mi amol jeje.</p>
+            <br>
+            <p>Con todo mi amor,<br><strong>Braulito.exe jeje.</strong></p>
+        </div>
+    </div>
+
+    <div class="window" id="window-reasons" style="top: 160px; left: 200px;">
+        <div class="title-bar">
+            <span>Por_Que_Te_Amo.doc</span>
+            <div class="window-controls"><button onclick="minimizeWindow('window-reasons')">_</button><button onclick="maximizeWindow('window-reasons')">□</button><button class="close" onclick="closeWindow('window-reasons')">X</button></div>
+        </div>
+        <div class="window-content">
+            <h3 style="color:#cc0000; border-bottom: 2px dashed #cc0000; padding-bottom:5px;">Razones por las que te amo</h3>
+            <ul style="margin-left: 25px; margin-top: 15px; line-height: 2;">
+                <li>Por tu sonrisa hermosa.</li>
+                <li>Por cómo me haces sentir cuando estoy contigo.</li>
+                <li>Por lo hermosa que eres.</li>
+                <li>Por que siempre estás ahí para mí.</li>
+                <li>Por que me encanta escucharte, sentirte, tenerte cerca.</li>
+                <li>y por muchas otras cosas más mi vida...</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- VENTANA DE AVISO (se muestra al iniciar sesión) -->
+    <div class="window" id="window-aviso" style="top: 150px; left: 250px; width: 380px;">
+        <div class="title-bar">
+            <span>Aviso_Importante.exe</span>
+            <div class="window-controls"><button onclick="minimizeWindow('window-aviso')">_</button><button onclick="maximizeWindow('window-aviso')">□</button><button class="close" onclick="closeWindow('window-aviso')">X</button></div>
+        </div>
+        <div class="window-content" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+            <img src="https://win98icons.alexmeub.com/icons/png/msg_warning-0.png" alt="Info" style="width: 48px; height: 48px; margin-bottom: 10px;">
+            <h3 style="color: #003399;">¡ola mi amor!</h3>
+            <p style="font-size: 16px; line-height: 1.6; margin: 15px 0;">FELICES 3 MESES MI VIDA.<br>Eres lo más bonito que me ha pasado.<br>Te amo con todo mi corazón.</p>
+            <button onclick="closeWindow('window-aviso')" style="padding: 8px 20px; background: #0058e6; color: white; border: 2px solid white; border-radius: 5px; cursor: pointer; font-weight: bold;">Aceptar</button>
+        </div>
+    </div>
+
+    <script>
+        // --- SONIDOS DE WINDOWS ---
+        function playSound(type) {
+            try {
+                if(type === 'startup') {
+                    let audio = document.getElementById('sound-startup');
+                    audio.currentTime = 0;
+                    audio.play();
+                } else if(type === 'click') {
+                    let audio = document.getElementById('sound-click');
+                    audio.currentTime = 0;
+                    audio.play();
+                } else if(type === 'open') {
+                    let audio = document.getElementById('sound-open');
+                    audio.currentTime = 0;
+                    audio.play();
+                }
+            } catch(e) {}
+        }
+
+        // --- PLAYLIST (agrega aquí tus canciones) ---
+        const playlist = [
+            { name: 'Lover Is a day', src: 'music1.mp3' },
+            { name: 'La Novela', src: 'music2.mp3' },
+            { name: 'Aura', src: 'music3.mp3' }
+        ];
+
+        // --- VARIABLES GLOBALES ---
+        let currentSongIndex = 0;
+        let musicPlaying = false;
+        const audio = document.getElementById('bg-music');
+        const songMarquee = document.getElementById('song-marquee');
+        const musicTimeDisplay = document.getElementById('music-time');
+        const playlistSelect = document.getElementById('playlist-select');
+        let timeUpdateInterval = null;
+
+        // --- FUNCIONES DE PLAYLIST ---
+        function loadPlaylist() {
+            playlistSelect.innerHTML = '';
+            playlist.forEach((song, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = song.name;
+                playlistSelect.appendChild(option);
+            });
+            if (playlist.length > 0) {
+                playlistSelect.value = 0;
+                currentSongIndex = 0;
+                loadSong(currentSongIndex);
+            }
+        }
+
+        function loadSong(index) {
+            if (index < 0 || index >= playlist.length) return;
+            const song = playlist[index];
+            audio.src = song.src;
+            audio.load();
+            songMarquee.textContent = '🎵 Reproduciendo: ' + song.name;
+            audio.addEventListener('loadedmetadata', function() {
+                updateTimeDisplay();
+            });
+            if (musicPlaying) {
+                audio.play().catch(() => {});
+            }
+            playlistSelect.value = index;
+            currentSongIndex = index;
+        }
+
+        function changeSong(index) {
+            index = parseInt(index);
+            if (isNaN(index) || index === currentSongIndex) return;
+            const wasPlaying = musicPlaying;
+            loadSong(index);
+            if (wasPlaying) {
+                audio.play().catch(() => {});
+            }
+        }
+
+        function nextSong() {
+            let next = currentSongIndex + 1;
+            if (next >= playlist.length) next = 0;
+            changeSong(next);
+        }
+
+        function prevSong() {
+            let prev = currentSongIndex - 1;
+            if (prev < 0) prev = playlist.length - 1;
+            changeSong(prev);
+        }
+
+        // --- FUNCIONES DE REPRODUCCIÓN ---
+        function playMusic() {
+            if (!audio.src) {
+                if (playlist.length > 0) loadSong(0);
+                else return;
+            }
+            audio.play().catch(() => {
+                alert('No se pudo reproducir el archivo. Verifica que exista.');
+            });
+            musicPlaying = true;
+            startTimeUpdate();
+        }
+
+        function pauseMusic() {
+            audio.pause();
+            musicPlaying = false;
+        }
+
+        function stopMusic() {
+            audio.pause();
+            audio.currentTime = 0;
+            musicPlaying = false;
+            updateTimeDisplay();
+        }
+
+        function startTimeUpdate() {
+            if (timeUpdateInterval) clearInterval(timeUpdateInterval);
+            timeUpdateInterval = setInterval(() => {
+                updateTimeDisplay();
+            }, 500);
+        }
+
+        function updateTimeDisplay() {
+            if (audio.duration && !isNaN(audio.duration)) {
+                const current = Math.floor(audio.currentTime);
+                const duration = Math.floor(audio.duration);
+                const curMin = String(Math.floor(current / 60)).padStart(2, '0');
+                const curSec = String(current % 60).padStart(2, '0');
+                const durMin = String(Math.floor(duration / 60)).padStart(2, '0');
+                const durSec = String(duration % 60).padStart(2, '0');
+                musicTimeDisplay.textContent = curMin + ':' + curSec + ' / ' + durMin + ':' + durSec;
+            } else {
+                musicTimeDisplay.textContent = '00:00 / 00:00';
+            }
+        }
+
+        audio.addEventListener('ended', function() {
+            nextSong();
+            if (musicPlaying) {
+                audio.play().catch(() => {});
+            }
+        });
+
+        // --- FUNCIONES DE VENTANAS Y TASKBAR ---
+        let zIndexCounter = 10;
+        const windowButtons = {};
+
+        function createTaskbarButton(windowId, title) {
+            const container = document.getElementById('taskbar-windows');
+            if (windowButtons[windowId]) return;
+            const btn = document.createElement('button');
+            btn.className = 'taskbar-window-btn active';
+            btn.textContent = title;
+            btn.dataset.windowId = windowId;
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleWindow(windowId);
+            });
+            container.appendChild(btn);
+            windowButtons[windowId] = btn;
+        }
+
+        function removeTaskbarButton(windowId) {
+            const btn = windowButtons[windowId];
+            if (btn) {
+                btn.remove();
+                delete windowButtons[windowId];
+            }
+        }
+
+        function toggleWindow(windowId) {
+            const win = document.getElementById(windowId);
+            if (!win) return;
+            const btn = windowButtons[windowId];
+            if (!btn) return;
+            if (win.style.display === 'none' || win.style.display === '') {
+                win.style.display = 'block';
+                win.style.zIndex = ++zIndexCounter;
+                btn.classList.add('active');
+                if (windowId === 'window-music' && !audio.src && playlist.length > 0) {
+                    loadSong(0);
+                }
+            } else {
+                win.style.display = 'none';
+                btn.classList.remove('active');
+            }
+        }
+
+        function openWindow(id) {
+            const win = document.getElementById(id);
+            if (!win) return;
+            if (win.style.display === 'block') {
+                win.style.zIndex = ++zIndexCounter;
+                const btn = windowButtons[id];
+                if (btn) btn.classList.add('active');
+                return;
+            }
+            win.style.display = 'block';
+            win.style.zIndex = ++zIndexCounter;
+            startMenu.style.display = 'none';
+            const titleBar = win.querySelector('.title-bar span');
+            let title = titleBar ? titleBar.textContent : id;
+            createTaskbarButton(id, title);
+            if (id === 'window-music') {
+                if (!audio.src && playlist.length > 0) loadSong(0);
+            }
+            playSound('open');
+        }
+
+        function closeWindow(id) {
+            const win = document.getElementById(id);
+            if (win) {
+                win.style.display = 'none';
+                removeTaskbarButton(id);
+            }
+        }
+
+        function minimizeWindow(id) {
+            const win = document.getElementById(id);
+            if (win) {
+                win.style.display = 'none';
+                const btn = windowButtons[id];
+                if (btn) btn.classList.remove('active');
+            }
+        }
+
+        function maximizeWindow(id) {
+            const win = document.getElementById(id);
+            win.classList.toggle('maximized');
+            win.style.zIndex = ++zIndexCounter;
+        }
+
+        // --- EFECTOS DE FONDO ---
+        function createHeart() {
+            const bg = document.getElementById('bg-effects');
+            if(bg.style.display === 'none') return;
+            const heart = document.createElement('div');
+            heart.classList.add('floating-heart');
+            heart.innerHTML = ['💙', '🤍', '💖'][Math.floor(Math.random() * 3)];
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 5 + 5) + 's';
+            heart.style.fontSize = (Math.random() * 15 + 10) + 'px';
+            bg.appendChild(heart);
+            setTimeout(() => { heart.remove(); }, 10000);
+        }
+
+        // --- INICIO Y LOGIN ---
+        window.onload = function() {
+            loadPlaylist();
+            setTimeout(() => {
+                const bootScreen = document.getElementById('boot-screen');
+                bootScreen.style.opacity = '0';
+                setTimeout(() => {
+                    bootScreen.style.display = 'none';
+                    document.getElementById('login-screen').style.display = 'flex';
+                }, 500);
+            }, 3500);
+        };
+
+        function login() {
+            let userName = document.getElementById('username-input').value;
+            if (userName.trim() === '') userName = "Briana";
+            document.getElementById('display-username-taskbar').innerText = userName;
+            document.getElementById('display-username-menu').innerText = userName;
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('desktop').style.display = 'flex';
+            document.getElementById('taskbar').style.display = 'flex';
+            document.getElementById('bg-effects').style.display = 'block';
+            setInterval(createHeart, 800);
+            
+            // Sonido de inicio de sesión
+            playSound('startup');
+
+            // Mostrar ventana de aviso después de 1 segundo
+            setTimeout(() => {
+                openWindow('window-aviso');
+            }, 1000);
+        }
+
+        // --- RELOJ ---
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; 
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            document.getElementById('taskbar-clock').innerText = hours + ':' + minutes + ' ' + ampm;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // --- MENÚ INICIO ---
+        const startBtn = document.getElementById('start-button');
+        const startMenu = document.getElementById('start-menu');
+        startBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            playSound('click');
+            startMenu.style.display = startMenu.style.display === 'flex' ? 'none' : 'flex';
+        });
+        document.addEventListener('click', (e) => {
+            if (!startMenu.contains(e.target) && e.target !== startBtn) {
+                startMenu.style.display = 'none';
+            }
+        });
+
+        // --- ARRASTRAR VENTANAS ---
+        document.querySelectorAll('.window').forEach(win => {
+            const titleBar = win.querySelector('.title-bar');
+            let isDragging = false, startX, startY, initialX, initialY;
+            win.addEventListener('mousedown', () => { win.style.zIndex = ++zIndexCounter; });
+            titleBar.addEventListener('mousedown', (e) => {
+                if (e.target.tagName === 'BUTTON' || win.classList.contains('maximized')) return;
+                isDragging = true;
+                startX = e.clientX; startY = e.clientY;
+                initialX = win.offsetLeft; initialY = win.offsetTop;
+            });
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                win.style.left = (initialX + (e.clientX - startX)) + 'px';
+                win.style.top = (initialY + (e.clientY - startY)) + 'px';
+            });
+            document.addEventListener('mouseup', () => { isDragging = false; });
+            titleBar.addEventListener('touchstart', (e) => {
+                if (e.target.tagName === 'BUTTON' || win.classList.contains('maximized')) return;
+                isDragging = true;
+                startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+                initialX = win.offsetLeft; initialY = win.offsetTop;
+            });
+            document.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                win.style.left = (initialX + (e.touches[0].clientX - startX)) + 'px';
+                win.style.top = (initialY + (e.touches[0].clientY - startY)) + 'px';
+            });
+            document.addEventListener('touchend', () => { isDragging = false; });
+        });
+
+        // --- CONTADOR DE TIEMPO ---
+        const startDate = new Date(2026, 2, 21, 0, 0, 0).getTime();
+        setInterval(() => {
+            const now = new Date().getTime();
+            const distance = now - startDate;
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            document.getElementById("timer-text").innerHTML = 
+                days + " Días<br>" + 
+                hours + " Horas<br>" + 
+                minutes + " Minutos<br>" + 
+                seconds + " Segundos";
+        }, 1000);
+    </script>
+</body>
+</html>
